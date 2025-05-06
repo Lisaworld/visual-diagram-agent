@@ -1,6 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useAgentContext } from '../contexts/AgentContextProvider';
 
+const EXAMPLE_TRAVEL_TEXT = "여행을 준비할 때 고려할 점은 교통, 숙소, 일정, 음식, 예산이 있어. 교통은 비행기, 기차, 렌터카로 나뉘고, 숙소는 호텔, 에어비앤비, 게스트하우스가 있고, 일정은 도착, 관광, 휴식으로 계획해";
+
+const EXAMPLE_ORG_TEXT = "IT 회사 조직도는 CEO 아래에 기술총괄, 사업총괄, 경영지원 부서가 있어. 기술총괄 아래에는 개발팀과 인프라팀, 사업총괄 아래에는 마케팅팀, 영업팀, 고객지원팀이 있고, 개발팀은 프론트엔드, 백엔드, AI팀으로 나뉘어.";
+
 const InputBox: React.FC = () => {
   const { userInput, setUserInput, processUserInput, isProcessing, error } = useAgentContext();
   const [localInput, setLocalInput] = useState(userInput);
@@ -28,6 +32,12 @@ const InputBox: React.FC = () => {
     }
   }, [handleSubmit]);
 
+  const handleExampleClick = useCallback((text: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    setLocalInput(text);
+    setUserInput(text);
+  }, [setUserInput]);
+
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto p-4" id="input-form" name="input-form">
       <div className="flex flex-col gap-4">
@@ -40,7 +50,7 @@ const InputBox: React.FC = () => {
             onKeyDown={handleKeyDown}
             disabled={isProcessing}
             className="w-full h-32 p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
-            placeholder="자연어로 설명을 입력하세요. (예: '회원가입 후 로그인하여 게시글을 작성하는 프로세스')"
+            placeholder="자연어로 설명을 입력하세요."
             data-testid="input-textarea"
           />
           {error && (
@@ -50,15 +60,27 @@ const InputBox: React.FC = () => {
           )}
         </div>
         <div className="flex justify-between items-center">
-          <p className="text-sm text-gray-500">
-            ⌘ + Enter 또는 Ctrl + Enter로 제출
-          </p>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <button
+              onClick={handleExampleClick(EXAMPLE_TRAVEL_TEXT)}
+              className="hover:text-gray-600 hover:underline focus:outline-none"
+            >
+              📝 예시 텍스트(여행준비)
+            </button>
+            <span>/</span>
+            <button
+              onClick={handleExampleClick(EXAMPLE_ORG_TEXT)}
+              className="hover:text-gray-600 hover:underline focus:outline-none"
+            >
+              📝 예시 텍스트(조직도)
+            </button>
+          </div>
           <button
             type="submit"
             id="submit-button"
             name="submit-button"
             disabled={!localInput.trim() || isProcessing}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="inline-flex px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed items-center gap-2 min-w-fit"
             data-testid="submit-button"
           >
             {isProcessing ? (
