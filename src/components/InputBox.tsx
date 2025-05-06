@@ -59,7 +59,27 @@ const InputBox: React.FC = () => {
             </div>
           )}
         </div>
-        <div className="flex justify-between items-center gap-1.5">
+        <div className="flex flex-col gap-3">
+          <button
+            type="submit"
+            id="submit-button"
+            name="submit-button"
+            disabled={!localInput.trim() || isProcessing}
+            className="inline-flex px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed items-center gap-2 min-w-fit self-end"
+            data-testid="submit-button"
+          >
+            {isProcessing ? (
+              <>
+                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                처리 중...
+              </>
+            ) : (
+              '도식 생성'
+            )}
+          </button>
           <div className="flex items-center gap-1 text-gray-500 text-[12px] sm:text-[13px] whitespace-nowrap">
             <button
               onClick={handleExampleClick(EXAMPLE_TRAVEL_TEXT)}
@@ -75,26 +95,6 @@ const InputBox: React.FC = () => {
               📝 예: 조직도
             </button>
           </div>
-          <button
-            type="submit"
-            id="submit-button"
-            name="submit-button"
-            disabled={!localInput.trim() || isProcessing}
-            className="inline-flex px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed items-center gap-2 min-w-fit"
-            data-testid="submit-button"
-          >
-            {isProcessing ? (
-              <>
-                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                처리 중...
-              </>
-            ) : (
-              '도식 생성'
-            )}
-          </button>
         </div>
       </div>
     </form>

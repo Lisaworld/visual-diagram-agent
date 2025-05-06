@@ -114,7 +114,7 @@ const DiagramViewTabs: React.FC = () => {
           >
             {type.charAt(0).toUpperCase() + type.slice(1)}
             {type === recommendedType && (
-              <span className="ml-2 text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
+              <span className="ml-2 text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full whitespace-nowrap">
                 추천
               </span>
             )}
