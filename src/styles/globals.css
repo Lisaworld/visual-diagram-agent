@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 transition-colors duration-200;
+  }
+
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 
+           transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed;
+  }
+
+  .input-primary {
+    @apply w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 
+           focus:border-transparent dark:bg-gray-800 dark:border-gray-700;
+  }
+}
+
+/* Mind Elixir 기본 스타일 */
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: grab;
+}
+
+.map-canvas.grabbing {
+  cursor: grabbing;
+}
+
+/* 마인드맵 노드 스타일 */
+.map-container .node {
+  position: absolute;
+  cursor: pointer;
+  padding: 8px 16px;
+  background: #f3f3f3;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.map-container .node.root {
+  background: #4c51bf;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark .map-container .node {
+  background: #2d2d2d;
+  color: #fff;
+}
+
+.dark .map-container .node.root {
+  background: #4c51bf;
+}
+
+.map-container .node:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+/* 연결선 스타일 */
+.map-container .connection {
+  position: absolute;
+  pointer-events: none;
+  stroke: #999;
+  stroke-width: 1.5px;
+  fill: none;
+}
+
+.dark .map-container .connection {
+  stroke: #666;
+}
+
+/* 줌 컨트롤 스타일 */
+.map-container .zoom-buttons {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 10;
+}
+
+.map-container .zoom-button {
+  width: 32px;
+  height: 32px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark .map-container .zoom-button {
+  background: #2d2d2d;
+  border-color: #444;
+  color: white;
+}
+
+.map-container .zoom-button:hover {
+  background: #f3f3f3;
+  border-color: #ccc;
+}
+
+.dark .map-container .zoom-button:hover {
+  background: #3d3d3d;
+  border-color: #555;
+}
+
+/* Mind Elixir 커스텀 스타일 */
+.mind-elixir {
+  background: transparent !important;
+}
+
+.mind-elixir .map-container {
+  background: transparent !important;
+}
+
+.mind-elixir .root-topic {
+  background-color: #4c51bf !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.mind-elixir .topic {
+  background-color: #f3f3f3 !important;
+  color: #333 !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .mind-elixir .topic {
+  background-color: #2d2d2d !important;
+  color: #fff !important;
+}
+
+.mind-elixir .connection {
+  stroke: #999 !important;
+  stroke-width: 1.5px !important;
+}
+
+.dark .mind-elixir .connection {
+  stroke: #666 !important;
+}
+
+.mind-elixir .topic:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-1px) !important;
+  transition: all 0.2s ease !important;
+} 

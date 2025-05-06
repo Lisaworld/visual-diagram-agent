@@ -1,0 +1,25 @@
+name: DiagramGeneratorAgent
+version: 1.0.0
+description: Coordinates generation of different diagram styles
+runtime: typescript
+
+inputs:
+  base_structure:
+    $ref: "../root/DiagramBuilderAgent/agent.yaml#/types/DiagramData"
+    description: Basic diagram structure to transform
+
+outputs:
+  diagram_variants:
+    type: object
+    properties:
+      flowchart:
+        $ref: "../root/DiagramBuilderAgent/agent.yaml#/types/DiagramData"
+      mindmap:
+        $ref: "../root/DiagramBuilderAgent/agent.yaml#/types/DiagramData"
+      tree:
+        $ref: "../root/DiagramBuilderAgent/agent.yaml#/types/DiagramData"
+
+calls:
+  - agent: FlowchartAgent
+  - agent: MindmapAgent
+  - agent: TreeAgent 
