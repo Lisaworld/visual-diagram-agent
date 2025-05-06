@@ -3,7 +3,7 @@ import { useAgentContext } from '../contexts/AgentContextProvider';
 import { DiagramType, DiagramData } from '../types/diagram';
 import { Tab } from '@headlessui/react';
 import { FlowchartView } from './FlowchartView';
-import { RadialMindmap } from './RadialMindmap';
+import { MindMapView } from './MindMapView';
 import { TreeView } from './TreeView';
 
 interface DiagramVariants {
@@ -193,9 +193,8 @@ const DiagramViewTabs: React.FC = () => {
             )}
           >
             {selectedTab === 'mindmap' && diagramVariants.mindmap ? (
-              <RadialMindmap 
+              <MindMapView 
                 data={diagramVariants.mindmap}
-                onNodeChange={handleNodeChange}
               />
             ) : renderEmptyState()}
           </Tab.Panel>
