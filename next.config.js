@@ -71,7 +71,7 @@ const nextConfig = {
     // 개발 환경의 CSP 설정 - HMR 허용
     const developmentCSP = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' http: https:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https:",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: http: https:",
       "font-src 'self' data:",
