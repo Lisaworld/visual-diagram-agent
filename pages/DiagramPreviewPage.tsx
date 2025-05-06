@@ -21,7 +21,7 @@ const DiagramPreviewPage: React.FC = () => {
         {/* 입력 섹션 */}
         <section className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-            텍스트 입력
+            텍스트 입력 💭
           </h2>
           <InputBox />
         </section>

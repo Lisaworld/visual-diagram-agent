@@ -59,15 +59,15 @@ const InputBox: React.FC = () => {
             </div>
           )}
         </div>
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2 text-gray-500 text-[13px] sm:text-sm whitespace-nowrap">
+        <div className="flex justify-between items-center gap-1.5">
+          <div className="flex items-center gap-1 text-gray-500 text-[12px] sm:text-[13px] whitespace-nowrap">
             <button
               onClick={handleExampleClick(EXAMPLE_TRAVEL_TEXT)}
               className="hover:text-gray-600 hover:underline focus:outline-none"
             >
               📝 예: 여행준비
             </button>
-            <span>/</span>
+            <span className="mx-1 text-gray-300">•</span>
             <button
               onClick={handleExampleClick(EXAMPLE_ORG_TEXT)}
               className="hover:text-gray-600 hover:underline focus:outline-none"

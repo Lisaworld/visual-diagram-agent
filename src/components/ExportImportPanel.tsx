@@ -109,8 +109,6 @@ export const ExportImportPanel: React.FC = () => {
         >
           SVG 내보내기
         </button>
-      </div>
-      <div>
         <input
           type="file"
           ref={fileInputRef}
