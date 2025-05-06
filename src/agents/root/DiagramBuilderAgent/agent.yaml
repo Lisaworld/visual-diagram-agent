@@ -1,0 +1,53 @@
+name: DiagramBuilderAgent
+version: 1.0.0
+description: Root agent for coordinating diagram generation and visualization
+runtime: typescript
+
+inputs:
+  user_input:
+    type: string
+    description: Natural language input from user
+    required: true
+
+outputs:
+  diagram_variants:
+    type: object
+    description: Generated diagram variants in different styles
+    properties:
+      flowchart:
+        $ref: "#/types/DiagramData"
+      mindmap:
+        $ref: "#/types/DiagramData"
+      tree:
+        $ref: "#/types/DiagramData"
+
+calls:
+  - agent: InputInterpreterAgent
+    description: Converts user input to base structure
+  - agent: DiagramGeneratorAgent
+    description: Generates diagram variants
+  - agent: EditableRendererAgent
+    description: Renders editable diagrams
+  - agent: ExportAgent
+    description: Handles diagram export
+
+types:
+  DiagramData:
+    type: object
+    properties:
+      nodes:
+        type: array
+        items:
+          type: object
+          properties:
+            id: { type: string }
+            text: { type: string }
+            x: { type: number }
+            y: { type: number }
+      edges:
+        type: array
+        items:
+          type: object
+          properties:
+            from: { type: string }
+            to: { type: string } 

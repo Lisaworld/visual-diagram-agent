@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
-import { DiagramVariants } from '../../types/diagram';
-import { calculateLayout } from '../../utils/layoutCalculator';
+import { DiagramVariants } from '../../src/types/diagram';
+import { calculateLayout } from '../../src/utils/layoutCalculator';
 
 // 도식 생성을 위한 시스템 프롬프트
 const SYSTEM_PROMPT = `당신은 자연어 설명을 도식화하는 전문가입니다.
@@ -30,10 +30,26 @@ const SYSTEM_PROMPT = `당신은 자연어 설명을 도식화하는 전문가�
    - 명확한 상하위 관계를 표현
    - 최상위 노드에서 시작하여 아래로 확장
    - 각 레벨은 분류나 구조를 나타냄
-   - 같은 레벨의 노드들은 동일한 속성이나 특성을 공유`;
+   - 같은 레벨의 노드들은 동일한 속성이나 특성을 공유
+
+응답은 반드시 다음과 같은 JSON 형식이어야 합니다:
+{
+  "flowchart": {
+    "nodes": [{"id": "string", "text": "string"}],
+    "edges": [{"from": "string", "to": "string"}]
+  },
+  "mindmap": {
+    "nodes": [{"id": "string", "text": "string"}],
+    "edges": [{"from": "string", "to": "string"}]
+  },
+  "tree": {
+    "nodes": [{"id": "string", "text": "string"}],
+    "edges": [{"from": "string", "to": "string"}]
+  }
+}`;
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY
 });
 
 export default async function handler(
@@ -51,6 +67,10 @@ export default async function handler(
       return res.status(400).json({ error: 'Invalid input' });
     }
 
+    if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'OpenAI API key is not configured' });
+    }
+
     const completion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -64,7 +84,8 @@ export default async function handler(
         }
       ],
       temperature: 0.4,
-      max_tokens: 2000
+      max_tokens: 2000,
+      response_format: { type: "json_object" }  // JSON 응답 형식 강제
     });
 
     const content = completion.choices[0].message.content;
@@ -72,28 +93,45 @@ export default async function handler(
       return res.status(500).json({ error: 'Empty response from OpenAI' });
     }
 
-    // JSON 부분만 추출
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return res.status(500).json({ error: 'No JSON data found in response' });
+    let result;
+    try {
+      result = JSON.parse(content);
+    } catch (parseError) {
+      console.error('JSON parsing error:', parseError);
+      return res.status(500).json({ 
+        error: 'Failed to parse OpenAI response as JSON',
+        details: content  // 디버깅을 위해 원본 응답 포함
+      });
     }
-
-    const result = JSON.parse(jsonMatch[0]);
 
     // 응답 검증
     if (!result.flowchart?.nodes || !result.mindmap?.nodes || !result.tree?.nodes ||
         !result.flowchart?.edges || !result.mindmap?.edges || !result.tree?.edges) {
-      return res.status(500).json({ error: 'Invalid response format: missing required fields' });
+      return res.status(500).json({ 
+        error: 'Invalid response format: missing required fields',
+        details: result  // 디버깅을 위해 실제 응답 구조 포함
+      });
     }
 
     // 노드 위치 계산
-    ['flowchart', 'mindmap', 'tree'].forEach(type => {
-      result[type] = calculateLayout(result[type], type as keyof DiagramVariants);
-    });
+    try {
+      ['flowchart', 'mindmap', 'tree'].forEach(type => {
+        result[type] = calculateLayout(result[type], type as keyof DiagramVariants);
+      });
+    } catch (layoutError) {
+      console.error('Layout calculation error:', layoutError);
+      return res.status(500).json({ 
+        error: 'Failed to calculate diagram layout',
+        details: layoutError instanceof Error ? layoutError.message : String(layoutError)
+      });
+    }
 
     return res.status(200).json(result);
   } catch (error) {
     console.error('Error generating diagrams:', error);
-    return res.status(500).json({ error: 'Failed to generate diagrams' });
+    return res.status(500).json({ 
+      error: 'Failed to generate diagrams',
+      details: error instanceof Error ? error.message : String(error)
+    });
   }
 } 

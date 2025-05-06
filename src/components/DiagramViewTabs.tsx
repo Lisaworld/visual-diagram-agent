@@ -1,35 +1,22 @@
-import React, { useRef, useMemo, useCallback } from 'react';
-import { useAgentContext } from '../contexts/AgentContextProvider';
-import { DiagramType, DiagramData } from '../types/diagram';
-import { Tab } from '@headlessui/react';
-import { FlowchartView } from './FlowchartView';
-import { MindMapView } from './MindMapView';
-import { TreeView } from './TreeView';
-
-interface DiagramVariants {
-  flowchart: DiagramData;
-  mindmap: DiagramData;
-  tree: DiagramData;
-}
+import React, { useRef, useMemo } from 'react';
+import { useAgentContext } from '@/contexts/AgentContextProvider';
+import DiagramView from '@/components/DiagramView';
+import { MindMapView } from '@/components/MindMapView';
+import { TreeView } from '@/components/TreeView';
+import { DiagramType } from '@/types/diagram';
 
 const DiagramViewTabs: React.FC = () => {
   const { diagramVariants, selectedTab, setSelectedTab, isProcessing, hasGeneratedDiagrams } = useAgentContext();
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
-
-  // 노드 텍스트 변경 핸들러
-  const handleNodeChange = useCallback((nodeId: string, newText: string) => {
-    // 여기서 상태 업데이트 로직을 구현할 수 있습니다.
-    console.log('Node text changed:', { nodeId, newText });
-  }, []);
 
   // 추천 다이어그램 타입 계산을 메모이제이션
   const recommendedType = useMemo(() => {
     if (!diagramVariants || !hasGeneratedDiagrams || isProcessing) return null;
 
     const scores = {
-      flowchart: (diagramVariants.flowchart?.nodes?.length || 0) + (diagramVariants.flowchart?.edges?.length || 0),
-      mindmap: (diagramVariants.mindmap?.nodes?.length || 0) + (diagramVariants.mindmap?.edges?.length || 0),
-      tree: (diagramVariants.tree?.nodes?.length || 0) + (diagramVariants.tree?.edges?.length || 0),
+      flowchart: diagramVariants.flowchart.nodes.length + diagramVariants.flowchart.edges.length,
+      mindmap: diagramVariants.mindmap.nodes.length + diagramVariants.mindmap.edges.length,
+      tree: diagramVariants.tree.nodes.length + diagramVariants.tree.edges.length,
     };
 
     return Object.entries(scores).reduce((a, b) => a[1] > b[1] ? a : b)[0] as DiagramType;
@@ -59,168 +46,86 @@ const DiagramViewTabs: React.FC = () => {
     }
   };
 
-  const tabs: { key: DiagramType; name: string }[] = [
-    { key: 'flowchart', name: '플로우차트' },
-    { key: 'mindmap', name: '마인드맵' },
-    { key: 'tree', name: '트리' },
-  ];
-
-  const selectedIndex = tabs.findIndex(tab => tab.key === selectedTab);
-
-  const renderEmptyState = () => (
-    <div className="flex items-center justify-center h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <div className="text-center max-w-md mx-auto p-6">
-        <div className="mb-4">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-          </svg>
+  // 다이어그램 렌더링 컴포넌트를 메모이제이션
+  const DiagramComponent = useMemo(() => {
+    if (!diagramVariants || !diagramVariants[selectedTab]) {
+      return (
+        <div className="flex items-center justify-center h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <p className="text-gray-600 dark:text-gray-300">
+            {isProcessing ? '도식을 생성하는 중입니다...' : '도식을 생성하려면 텍스트를 입력하세요.'}
+          </p>
         </div>
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">시각화할 내용이 없습니다</h3>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          텍스트를 입력하시면 다이어그램이 자동으로 생성됩니다.
-        </p>
-      </div>
-    </div>
-  );
+      );
+    }
 
-  const renderLoadingState = () => (
-    <div className="flex items-center justify-center h-[600px] bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-        <p className="text-gray-600 dark:text-gray-300">
-          도식을 생성하는 중입니다...
-        </p>
-      </div>
-    </div>
-  );
-
-  // 초기 상태 (아무 입력도 없는 상태)
-  if (!hasGeneratedDiagrams && !isProcessing) {
-    return (
-      <div className="w-full">
-        <div className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 mb-2">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              className="w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-100 hover:bg-white/[0.12] hover:text-white"
-              disabled
-            >
-              {tab.name}
-            </button>
-          ))}
-        </div>
-        {renderEmptyState()}
-      </div>
-    );
-  }
-
-  // 로딩 상태
-  if (isProcessing) {
-    return (
-      <div className="w-full">
-        <div className="flex space-x-1 rounded-xl bg-blue-900/20 p-1 mb-2">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              className="w-full rounded-lg py-2.5 text-sm font-medium leading-5 text-blue-100 hover:bg-white/[0.12] hover:text-white"
-              disabled
-            >
-              {tab.name}
-            </button>
-          ))}
-        </div>
-        {renderLoadingState()}
-      </div>
-    );
-  }
-
-  // 데이터가 없는 상태
-  if (!diagramVariants) {
-    return renderEmptyState();
-  }
+    const props = { data: diagramVariants[selectedTab] };
+    
+    switch (selectedTab) {
+      case 'mindmap':
+        return <MindMapView {...props} />;
+      case 'tree':
+        return <TreeView {...props} />;
+      case 'flowchart':
+        return <DiagramView {...props} />;
+      default:
+        return null;
+    }
+  }, [diagramVariants, selectedTab, isProcessing]);
 
   return (
-    <div className="w-full">
-      <Tab.Group
-        selectedIndex={selectedIndex}
-        onChange={index => setSelectedTab(tabs[index].key)}
+    <div className="space-y-4">
+      {diagramVariants && !isProcessing && hasGeneratedDiagrams && (
+        <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg mb-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                완료! 추천 도식: {recommendedType && recommendedType.charAt(0).toUpperCase() + recommendedType.slice(1)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      <div 
+        role="tablist" 
+        aria-label="Diagram types"
+        onKeyDown={handleKeyDown}
+        className="flex space-x-1 border-b border-gray-200 dark:border-gray-700"
       >
-        <Tab.List className="flex space-x-1 rounded-xl bg-blue-900/20 p-1">
-          {tabs.map(tab => (
-            <Tab
-              key={tab.key}
-              className={({ selected }) =>
-                classNames(
-                  'w-full rounded-lg py-2.5 text-sm font-medium leading-5',
-                  'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
-                  selected
-                    ? 'bg-white text-blue-700 shadow'
-                    : 'text-blue-100 hover:bg-white/[0.12] hover:text-white'
-                )
-              }
-            >
-              {tab.name}
-              {tab.key === recommendedType && (
-                <span className="ml-2 text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
-                  추천
-                </span>
-              )}
-            </Tab>
-          ))}
-        </Tab.List>
-
-        <Tab.Panels className="mt-2">
-          <Tab.Panel
-            key="flowchart"
-            className={classNames(
-              'rounded-xl bg-white dark:bg-gray-800 p-3',
-              'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
-            )}
+        {(['flowchart', 'mindmap', 'tree'] as DiagramType[]).map((type, index) => (
+          <button
+            key={type}
+            ref={(el: HTMLButtonElement | null) => {
+              tabsRef.current[index] = el;
+            }}
+            role="tab"
+            aria-selected={selectedTab === type}
+            onClick={() => setSelectedTab(type)}
+            tabIndex={selectedTab === type ? 0 : -1}
+            className={`px-4 py-2 border-b-2 transition-colors duration-150 ${
+              selectedTab === type 
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
+                : 'border-transparent hover:border-gray-300 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            } ${type === recommendedType ? 'font-semibold' : ''}`}
           >
-            {diagramVariants.flowchart ? (
-              <FlowchartView 
-                data={diagramVariants.flowchart} 
-                onNodeChange={handleNodeChange}
-              />
-            ) : renderEmptyState()}
-          </Tab.Panel>
-
-          <Tab.Panel
-            key="mindmap"
-            className={classNames(
-              'rounded-xl bg-white dark:bg-gray-800 p-3',
-              'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+            {type === recommendedType && (
+              <span className="ml-2 text-xs bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
+                추천
+              </span>
             )}
-          >
-            {selectedTab === 'mindmap' && diagramVariants.mindmap ? (
-              <MindMapView 
-                data={diagramVariants.mindmap}
-              />
-            ) : renderEmptyState()}
-          </Tab.Panel>
-
-          <Tab.Panel
-            key="tree"
-            className={classNames(
-              'rounded-xl bg-white dark:bg-gray-800 p-3',
-              'ring-white ring-opacity-60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2'
-            )}
-          >
-            {diagramVariants.tree ? (
-              <TreeView 
-                data={diagramVariants.tree}
-                onNodeChange={handleNodeChange}
-              />
-            ) : renderEmptyState()}
-          </Tab.Panel>
-        </Tab.Panels>
-      </Tab.Group>
+          </button>
+        ))}
+      </div>
+      <div className="w-full h-[600px] border rounded-lg overflow-hidden">
+        {DiagramComponent}
+      </div>
     </div>
   );
-};
-
-const classNames = (...classes: string[]) => {
-  return classes.filter(Boolean).join(' ');
 };
 
 export default DiagramViewTabs; 

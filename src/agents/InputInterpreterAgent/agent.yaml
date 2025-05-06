@@ -1,0 +1,15 @@
+name: InputInterpreterAgent
+version: 1.0.0
+description: Interprets natural language input into diagram structure
+runtime: typescript
+
+inputs:
+  user_input:
+    type: string
+    description: Natural language input to interpret
+    required: true
+
+outputs:
+  base_structure:
+    $ref: "../root/DiagramBuilderAgent/agent.yaml#/types/DiagramData"
+    description: Basic diagram structure with nodes and edges 

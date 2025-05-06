@@ -1,4 +1,4 @@
-import { AppProps } from 'next/app';
+import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import { AgentContextProvider } from '@/contexts/AgentContextProvider';
 import { StyleContextProvider } from '@/contexts/StyleContextProvider';
